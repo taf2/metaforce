@@ -26,6 +26,15 @@ module Metaforce
         end
       end
 
+      def describe_softphone_layout(options={})
+        request :describe_softphone_layout do |soap|
+          soap.body = {
+            :messages => options,
+            :attributes! => { 'ins0:messages' => { 'xsi:type' => 'ins0:DescribeSoftphoneLayout' } }
+          }
+        end
+      end
+
       # Public: Retrieves layout information for the specified sobject.
       #
       # sobject        - String name of the sobject.

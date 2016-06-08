@@ -14,6 +14,9 @@ module Metaforce
     # this job.
     attr_reader :id
 
+    # Public: Is the Job async or sync CRUD is sync and everything else is async
+    attr_accessor :async
+
     # Public: Instantiate a new job. Doesn't actually do anything until
     # .perform is called.
     #
@@ -38,7 +41,8 @@ module Metaforce
     #
     # Returns self.
     def perform
-      start_heart_beat
+      puts "perform with: #{@async.inspect}"
+      start_heart_beat if @async
       self
     end
 

@@ -10,6 +10,7 @@ module Metaforce
     #
     # Returns self.
     def initialize(client, options={})
+      @async = true
       super(client)
       @options = options
     end
