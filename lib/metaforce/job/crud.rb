@@ -9,7 +9,11 @@ module Metaforce
     end
 
     def perform
-      @id = @client.send(@method, *@args).id
+      if @async
+        @id = @client.send(@method, *@args).id
+      else
+        @result = @client.send(@method, *@args)
+      end
       super
     end
   end

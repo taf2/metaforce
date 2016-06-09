@@ -14,8 +14,11 @@ module Metaforce
     # this job.
     attr_reader :id
 
+    # the data result of the job
+    attr_reader :result
+
     # Public: Is the Job async or sync CRUD is sync and everything else is async
-    attr_accessor :async
+    attr_reader :async
 
     # Public: Instantiate a new job. Doesn't actually do anything until
     # .perform is called.
@@ -41,8 +44,12 @@ module Metaforce
     #
     # Returns self.
     def perform
-      puts "perform with: #{@async.inspect}"
-      start_heart_beat if @async
+      if @async
+        start_heart_beat
+      else
+        @status = Struct.new(:done).new(true)
+        trigger callback_type
+      end
       self
     end
 
@@ -108,7 +115,11 @@ module Metaforce
     #
     # Returns true if the job has completed, false otherwise.
     def done?
-      status.done
+      if @async
+        status.done
+      else
+        true
+      end
     end
 
     # Public: Returns the state if the job has finished processing.
@@ -120,7 +131,11 @@ module Metaforce
     #
     # Returns the state of the job.
     def state
-      status.state
+      if @async
+        status.state
+      else
+        'Completed'
+      end
     end
 
     # Public: Check if the job is in a given state.
