@@ -16,9 +16,7 @@ module Metaforce
         #   #=> ["ContractContactRole", "Solution", "Invoice_Statements__c", ... ]
         def list_metadata(*args)
           queries = args.map(&:to_s).map(&:camelize).map { |t| {:type => t} }
-          request :list_metadata do |soap|
-            soap.body = { :queries => queries }
-          end
+          request :list_metadata, message: { :queries => queries }
         end
 
         # Public: Describe the organization's metadata.
