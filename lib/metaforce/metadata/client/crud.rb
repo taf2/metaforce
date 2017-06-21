@@ -8,13 +8,11 @@ module Metaforce
         # Examples
         #
         #   client._create(:apex_page, :full_name => 'TestPage', label: 'Test page', :content => '<apex:page>foobar</apex:page>')
+        # see: https://developer.salesforce.com/page/Metadata_Create_Custom_Field
         def _create(type, metadata={})
-          type = type.to_s.camelize
-          request :create_metadata do |soap|
-            soap.body = {
-              :metadata => prepare(metadata)
-            }.merge(attributes!(type))
-          end
+          type    = type.to_s.camelize
+          message = { metadata: metadata.merge({'@xsi:type' => "tns:#{type}"}) }
+          client.call(:create_metadata, message: message)
         end
 
         # Public: Upsert metadata
@@ -24,11 +22,8 @@ module Metaforce
         #   client._upsert(:apex_page, :full_name => 'TestPage', :label => 'Test page', :content => '<apex:page>hello world</apex:page>')
         def _upsert(type, metadata={})
           type = type.to_s.camelize
-          request :upsert_metadata do |soap|
-            soap.body = {
-              :metadata => prepare(metadata)
-            }.merge(attributes!(type))
-          end
+          message = { metadata: metadata.merge({'@xsi:type' => "tns:#{type}"}) }
+          client.call(:upsert_metadata, message: message)
         end
 
         # Public: Delete metadata
@@ -38,12 +33,8 @@ module Metaforce
         #   client._delete(:apex_component, 'Component')
         def _delete(type, *args)
           type = type.to_s.camelize
-          metadata = args.map { |full_name| {:full_name => full_name} }
-          request :delete_metadata do |soap|
-            soap.body = {
-              :metadata => metadata
-            }.merge(attributes!(type))
-          end
+          message = { metadata: {full_names: args}.merge({'@xsi:type' => "tns:#{type}"}) }
+          client.call(:delete_metadata, message: message)
         end
 
         # Public: Update metadata
@@ -53,11 +44,8 @@ module Metaforce
         #   client._update(:apex_page, :full_name => 'TestPage', :label => 'Test page', :content => '<apex:page>hello world</apex:page>')
         def _update(type, metadata={})
           type = type.to_s.camelize
-          request :update_metadata do |soap|
-            soap.body = {
-              :metadata => metadata
-            }.merge(attributes!(type))
-          end
+          message = { metadata: metadata.merge({'@xsi:type' => "tns:#{type}"}) }
+          client.call(:update_metadata, message: message)
         end
 
         # Public: Describe metadata
@@ -67,9 +55,7 @@ module Metaforce
         #   client._describe(:apex_page)
         def _describe(type)
           type = type.to_s.camelize
-          request :describe_metadata do |soap|
-            soap.body = attributes!(type)
-          end
+          client.call(:describe, message: {'@xsi:type' => "tns:#{type}"})
         end
 
         # Public: Read metadata
@@ -79,12 +65,8 @@ module Metaforce
         #   client._read(:apex_page, ["MyCustomObject1__c", "MyCustomObject2__c"])
         def _read(type, full_names=[])
           type = type.to_s.camelize
-          request :read_metadata do |soap|
-            soap.body = {
-              :type => type,
-              :full_names => full_names
-            }
-          end
+          message = { metadata: { full_names: full_names }.merge({'@xsi:type' => "tns:#{type}"}) }
+          client.call(:read_metadata, message: message)
         end
 
         def create(*args)
@@ -112,10 +94,6 @@ module Metaforce
         end
 
       private
-
-        def attributes!(type)
-          {:attributes! => { 'ins0:metadata' => { 'xsi:type' => "ins0:#{type}" } }}
-        end
 
         # Internal: Prepare metadata by base64 encoding any content keys.
         def prepare(metadata)
