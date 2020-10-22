@@ -65,7 +65,7 @@ module Metaforce
         #   client._read(:apex_page, ["MyCustomObject1__c", "MyCustomObject2__c"])
         def _read(type, full_names=[])
           type = type.to_s.camelize
-          message = { metadata: { full_names: full_names }.merge({'@xsi:type' => "tns:#{type}"}) }
+          message = { type: type, fullNames: full_names }
           client.call(:read_metadata, message: message)
         end
 
